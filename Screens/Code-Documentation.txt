@@ -1,0 +1,617 @@
+Task for july 28th 
+* Make an object everytime the user clicked the add Goal button - The object, will have the task name, description, priotiy, for now
+
+
+
+import { useState } from "react";
+import { useContext } from "react";
+import * as React from "react";
+import Icon from "react-native-vector-icons/FontAwesome";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
+
+import GoalsContext from "../GoalsContext";
+
+function GoalScreen({ navigation }) {
+  const { userGoals, setUserGoals } = useContext(GoalsContext);
+
+  //State variables
+  const [enteredGoal, setEnteredGoal] = useState("");
+  // const [userGoals, setUserGoals] = useState([]); // Use the context
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modal2Visible, setModal2Visible] = useState(false);
+
+  //Event Handlers
+  const handleInputChange = (text) => {
+    //This function is called when the text input is changed
+    setEnteredGoal(text);
+  };
+
+  const renderGoalItem = ({ item }) => {
+    return <Text style={styles.goalsStyleContainer}>{item}</Text>;
+  };
+
+  //Functions
+  function addGoalHandler() {
+    if (enteredGoal.trim() !== "") {
+      setUserGoals((prevGoals) => [...prevGoals, enteredGoal.trim()]);
+      removeText();
+      openModal();
+    } else {
+      // Handle empty goal input if needed
+    }
+  }
+  function removeText() {
+    //This function is called when the add goal button is pressed - it removes the text from the text input
+    setEnteredGoal("");
+  }
+  function closeModal() {
+    //This function is called when the close modal button is pressed
+    setModalVisible(false);
+    console.log("Modal Closed");
+  }
+  function openModal() {
+    //This function is called when the add goal button is pressed
+    setModalVisible(true);
+  }
+  function arraylength() {
+    return userGoals.length;
+  }
+  function clearGoals() {
+    setUserGoals([]);
+    console.log("Goals cleared");
+  }
+  function menuBar() {
+    setModal2Visible(true);
+  }
+  //new code
+  const [goalText, setGoalText] = useState("");
+  const [isInputVisible, setInputVisible] = useState(false);
+
+  const handleAddGoal = () => {
+    setInputVisible(true); // Show the input field and buttons when this button is clicked
+  };
+
+  const handleAddProp = () => {
+    // Handle adding the prop here
+    console.log("Adding prop");
+    setInputVisible(false); // Hide the input field and buttons when any button is clicked
+  };
+
+  const handleAddContext = () => {
+    // Handle adding the context here
+    console.log("Adding context");
+    setInputVisible(false); // Hide the input field and buttons when any button is clicked
+  };
+
+  // Hide the input field and buttons when any touch occurs outside the TextInput
+  const handleDismissContent = () => {
+    setInputVisible(false);
+    Keyboard.dismiss(); // Dismiss the keyboard
+  };
+
+  return (
+    // <View style={styles.container}>
+    //   <Text>Goals Screen</Text>
+    //   <View style={styles.goalContainer}>
+    //     <TextInput
+    //       style={styles.textContainer}
+    //       type="text"
+    //       placeholder="Enter Goal"
+    //       value={enteredGoal}
+    //       //onChangeText takes a call back function as an argument and passes the text to the function
+    //       //In this case, the function is handleInputChange, which has a parameter of text
+    //       onChangeText={handleInputChange}
+    //     />
+    //     <Button title="Add Goal" onPress={addGoalHandler} />
+    //     <Button title="Close" onPress={openModal} />
+    //   </View>
+
+    <View>
+      <View>
+        <Text>Goal Added</Text>
+        <Text> Number of goals: {arraylength()}</Text>
+        <Button title="Clear goals" onPress={clearGoals} />
+        <View>
+          <FlatList
+            data={userGoals} //The array in which the flat list is using
+            renderItem={renderGoalItem}
+            //item represents current value in the "data"
+            //index represents the current index of the "item"
+            //The lkey extractor gives you a unqiue id for each item.
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+        <Button title="Add another Goal" onPress={closeModal} />
+      </View>
+
+      {/* Wrap the content with TouchableWithoutFeedback */}
+      <TouchableWithoutFeedback onPress={handleDismissContent}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.inputContainer}
+        >
+          {/* Show the input field and buttons when isInputVisible is true */}
+          {isInputVisible ? (
+            <>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Add Goal"
+                //value={goalText}
+                // onChangeText={setGoalText}
+                onSubmitEditing={handleAddGoal}
+                autoFocus={true}
+                value={enteredGoal}
+                onChangeText={handleInputChange}
+              />
+              <Button title="Add prop" onPress={handleAddProp} />
+              <Button title="Add context" onPress={handleAddContext} />
+            </>
+          ) : (
+            // Show this button when isInputVisible is false
+            <Button title="Add Goal" onPress={handleAddGoal} />
+          )}
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+
+      {/* <View style={styles.menuBar}>
+        <Text>
+          <Icon name="chevron-left" size={30} color="black" onPress={menuBar} />
+        </Text>
+      </View> */}
+
+      <Modal visible={modal2Visible}>
+        <Text>Testing</Text>
+      </Modal>
+    </View>
+  );
+}
+
+export default GoalScreen;
+
+//Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  goalContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "80%",
+    marginTop: 100,
+  },
+  textContainer: {
+    borderColor: "black",
+    borderWidth: 1,
+    padding: 10,
+    width: "60%",
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "white",
+    padding: 100,
+    borderRadius: 10,
+  },
+  goalsStyleContainer: {
+    color: "red",
+  },
+  menuBar: {
+    position: "absolute",
+    bottom: 380,
+    right: -5,
+  },
+  textInput: {
+    borderColor: "black",
+    borderWidth: 1,
+    padding: 10,
+    width: "80%",
+  },
+  inputContainer: {
+    flexDirection: "column", // Change to 'column' to make input and buttons stack vertically
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%", // Change to '100%' to occupy the full width of the screen
+    marginTop: 20, // Adjust the marginTop as needed
+  },
+});
+
+
+
+//Old Style sheet incase I need it 
+
+/Stylesheet
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#F6F6F6", // Use a lighter background color
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   goalsContainer: {
+//     flex: 1,
+//     justifyContent: "flex-start",
+//     paddingTop: 10,
+//     width: "100%",
+//   },
+//   editTextInput: {
+//     borderColor: "#333",
+//     borderWidth: 1,
+//     padding: 10,
+//     marginBottom: 15,
+//     width: "100%",
+//     borderRadius: 8,
+//     backgroundColor: "#F5F5F5",
+//   },
+
+//   inputContainer: {
+//     flexDirection: "column",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     width: "100%",
+//     marginTop: 20,
+//     paddingBottom: 20, // Adjust padding
+//   },
+//   userGoalsDataContainer: {
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#eaeaea",
+//     padding: 10,
+//   },
+//   addButtonContainer: {
+//     position: "absolute",
+//     bottom: 10,
+//     left: 0,
+//     right: 0,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     padding: 20,
+//   },
+//   goalsStyleContainer: {
+//     color: "red",
+//   },
+//   descriptionStyleContainer: {
+//     color: "blue",
+//   },
+//   extraButtons: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     width: "80%",
+//   },
+//   showEverything: {
+//     width: "100%",
+//     alignItems: "center",
+//     top: -100,
+//     backgroundColor: "grey",
+//   },
+//   priorityModal: {
+//     // position: "absolute",
+//     top: "40%", // Adjust as needed to position the modal above the button
+//     left: "10%", // Center the modal horizontally
+//     transform: [{ translateX: -50 }], // Center the modal horizontally
+//     padding: 20,
+//     borderRadius: 10,
+//     elevation: 5,
+//     zIndex: 1, // Add a z-index to the modal
+//     width: 200,
+//     height: 200,
+//     backgroundColor: "white",
+//     borderColor: "black",
+//     borderWidth: 1,
+//   },
+//   PriorityView: {
+//     width: "100%",
+//     height: "20%",
+//     // backgroundColor: "red",
+//     borderWidth: 1,
+//     borderColor: "black",
+//   },
+//   priorityFlatlist: {
+//     // width: "100%",
+//     height: 150,
+//     borderWidth: 1,
+//     borderColor: "black",
+//   },
+//   goalItemContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     backgroundColor: "white",
+//     borderRadius: 10,
+//     paddingHorizontal: 10,
+//     paddingVertical: 15,
+//     elevation: 2,
+//   },
+//   goalTextContainer: {
+//     flex: 1,
+//   },
+//   editButton: {
+//     padding: 5,
+//     borderRadius: 5,
+//   },
+//   swipeToDelete: {
+//     flexDirection: "row",
+//     justifyContent: "flex-end",
+//     alignItems: "center",
+//     backgroundColor: "#FF0000", // Change to your desired delete button color
+//     padding: 10,
+//     marginLeft: 15, // Adjust the left margin as needed
+//     marginRight: -15, // Adjust the right margin as needed
+//   },
+//   editGoalModal: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent background overlay
+//     padding: 20,
+//     position: "absolute",
+//     left: 0,
+//     right: 0,
+//     top: 0,
+//     bottom: 0,
+//     zIndex: 1,
+//   },
+
+//   //check out in a bit
+//   editPriorityModal: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)",
+//     padding: 20,
+//     position: "absolute",
+//     left: 0,
+//     right: 0,
+//     top: 0,
+//     bottom: 0,
+//     zIndex: 1,
+//   },
+//   addButton: {
+//     backgroundColor: "#007AFF", // Blue button background
+//     color: "#FFF", // White button text
+//     borderRadius: 8,
+//     paddingHorizontal: 20,
+//     paddingVertical: 10,
+//     marginVertical: 10,
+//   },
+//   headerContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//   },
+//   addGoalButton: {
+//     //backgroundColor: "#007AFF", // Blue button background
+//     color: "#FFF", // White button text
+//     borderRadius: 8,
+//     paddingHorizontal: 20,
+//     paddingVertical: 10,
+//     marginVertical: 10,
+//     left: 140,
+//     top: -30,
+//   },
+//   editTagModal: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)",
+//     padding: 20,
+//     position: "absolute",
+//     left: 0,
+//     right: 0,
+//     top: 0,
+//     bottom: 0,
+//     zIndex: 1,
+//   },
+//   editButton: {
+//     padding: 10,
+//     borderRadius: 8,
+//     backgroundColor: "#007AFF",
+//     alignItems: "center",
+//   },
+//   editButtonText: {
+//     color: "#FFF",
+//     fontSize: 16,
+//   },
+//   undoButtonContainer: {
+//     position: "absolute",
+//     bottom: 10,
+//     left: 10, // Adjust the position as needed
+//   },
+//   editAddGoalModal: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "lightgray",
+//     padding: 20,
+//     width: "100%",
+//     position: "absolute",
+//     bottom: 100,
+//   },
+
+//   touchable: {
+//     zIndex: 100,
+//   },
+
+//   modal: {
+//     zIndex: 10,
+//   },
+// });
+
+// New Styles
+
+// Updated Styles
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#ffffff", // Updated to a lighter background color
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   goalsContainer: {
+//     flex: 1,
+//     justifyContent: "flex-start",
+//     paddingTop: 20, // Adjusted padding for better spacing
+//     width: "100%",
+//   },
+//   inputContainer: {
+//     flexDirection: "column",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     width: "100%",
+//     marginTop: 20,
+//     paddingBottom: 20,
+//   },
+//   editTextInput: {
+//     borderColor: "#333",
+//     borderWidth: 1,
+//     padding: 10,
+//     marginBottom: 15,
+//     width: "100%",
+//     borderRadius: 8,
+//     backgroundColor: "#F5F5F5",
+//   },
+//   userGoalsDataContainer: {
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#e0e0e0", // Adjusted border color
+//     padding: 15, // Increased padding
+//   },
+//   addButtonContainer: {
+//     position: "absolute",
+//     bottom: 20,
+//     left: 0,
+//     right: 0,
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   showEverything: {
+//     width: "100%",
+//     alignItems: "center",
+//     backgroundColor: "#f0f0f0", // Light gray background
+//     borderRadius: 10,
+//     padding: 20,
+//   },
+//   priorityModal: {
+//     top: "40%",
+//     left: "10%",
+//     transform: [{ translateX: -50 }],
+//     padding: 20,
+//     borderRadius: 10,
+//     elevation: 5,
+//     zIndex: 1,
+//     width: 200,
+//     height: 200,
+//     backgroundColor: "#fff", // White background
+//     borderColor: "#333",
+//     borderWidth: 1,
+//   },
+//   PriorityView: {
+//     width: "100%",
+//     height: 40,
+//     fontSize: 18, // Increased font size
+//     fontWeight: "bold", // Bold font
+//     textAlign: "center",
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#ccc",
+//   },
+//   priorityFlatlist: {
+//     height: 150,
+//     borderWidth: 1,
+//     borderColor: "#ccc",
+//   },
+//   goalItemContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     backgroundColor: "#fff",
+//     borderRadius: 10,
+//     paddingHorizontal: 20,
+//     paddingVertical: 15,
+//     elevation: 2,
+//     marginBottom: 10, // Adjusted margin
+//   },
+//   goalTextContainer: {
+//     flex: 1,
+//   },
+//   swipeToDelete: {
+//     flexDirection: "row",
+//     justifyContent: "flex-end",
+//     alignItems: "center",
+//     backgroundColor: "#ff5252", // Red background
+//     padding: 15,
+//     marginRight: -20, // Adjusted margin
+//   },
+//   editGoalModal: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)",
+//     padding: 20,
+//     position: "absolute",
+//     left: 0,
+//     right: 0,
+//     top: 0,
+//     bottom: 0,
+//     zIndex: 1,
+//   },
+//   editPriorityModal: {
+//     ...StyleSheet.absoluteFillObject,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)",
+//     padding: 20,
+//     zIndex: 1,
+//   },
+//   addButton: {
+//     backgroundColor: "#2196f3", // Blue button background
+//     color: "#FFF",
+//     borderRadius: 8,
+//     paddingHorizontal: 20,
+//     paddingVertical: 10,
+//     marginVertical: 10,
+//   },
+//   headerContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     padding: 20,
+//   },
+//   addGoalButton: {
+//     color: "#FFF",
+//     borderRadius: 50,
+//     backgroundColor: "#2196f3", // Blue button background
+//     paddingHorizontal: 15,
+//     paddingVertical: 15,
+//     position: "absolute",
+//     bottom: 20,
+//     right: 20,
+//   },
+//   editTagModal: {
+//     ...StyleSheet.absoluteFillObject,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "rgba(0, 0, 0, 0.7)",
+//     padding: 20,
+//     zIndex: 1,
+//   },
+
+// });
+
+
+
+//New stuff   delete goal
